@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 // adding namespaces
 using Unity.Netcode;
 // because we are using the NetworkBehaviour class
@@ -9,8 +10,13 @@ using Unity.Netcode;
 public class PlayerMovement : NetworkBehaviour
 {
     public float speed = 2f;
+    public float force = 70f;
+    public float maxSpeed = 10.0f;
+    public float sensitivity = 1.0f;
     // create a list of colors
     public List<Color> colors = new List<Color>();
+    Vector3 dir = new Vector3(0,0,0);
+    bool grounded = false;
 
     // getting the reference to the prefab
     [SerializeField]
@@ -26,11 +32,17 @@ public class PlayerMovement : NetworkBehaviour
     // reference to the camera
     [SerializeField] private Camera playerCamera;
 
+    Rigidbody rb;
+    Transform t;
 
     // Start is called before the first frame update
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
+        t = GetComponent<Transform>();
 
+        rb.freezeRotation = true;
+        Cursor.lockState = CursorLockMode.Locked;
     }
     // Update is called once per frame
     void Update()
@@ -42,24 +54,46 @@ public class PlayerMovement : NetworkBehaviour
 
         Vector3 moveDirection = new Vector3(0, 0, 0);
 
-        if (Input.GetKey(KeyCode.W))
+        if (Keyboard.current.wKey.isPressed)
         {
-            moveDirection.z = +1f;
+            dir += t.forward;
         }
-        if (Input.GetKey(KeyCode.S))
+        if (Keyboard.current.sKey.isPressed)
         {
-            moveDirection.z = -1f;
+            dir -= t.forward;
         }
-        if (Input.GetKey(KeyCode.A))
+        if (Keyboard.current.dKey.isPressed)
         {
-            moveDirection.x = -1f;
+            dir += t.right;
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Keyboard.current.aKey.isPressed)
         {
-            moveDirection.x = +1f;
+            dir -= t.right;
         }
-        transform.position += moveDirection * speed * Time.deltaTime;
+        // Time.deltaTime represents the time that passed since the last frame
+        //the multiplication below ensures that GameObject moves constant speed every frame
+        //translate directional input to movement
+        if(rb.linearVelocity.magnitude < maxSpeed)
+        {
+            rb.linearVelocity += dir * speed * Time.deltaTime;
+        }
+        //reset directional input vector
+        dir = Vector3.zero;
 
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && grounded)
+            rb.AddForce(t.up * force);
+
+        //horizontal movement with mouse
+        Vector3 mouseDelta = UnityEngine.InputSystem.Mouse.current.delta.ReadValue();
+        if (mouseDelta.x < 0) {
+            // Mouse moved left
+            // Debug.Log("mouse move lef by " + mouseDelta.x);
+            t.rotation *= Quaternion.Euler(0f, mouseDelta.x * sensitivity, 0f);
+        } else if (mouseDelta.x > 0) {
+            // Mouse moved right
+            // Debug.Log("mouse move rig by" + mouseDelta.x);
+            t.rotation *= Quaternion.Euler(0f, mouseDelta.x * sensitivity, 0f);
+        }
 
         // if I is pressed spawn the object 
         // if J is pressed destroy the object
@@ -84,6 +118,23 @@ public class PlayerMovement : NetworkBehaviour
             // call the BulletSpawningServerRpc method
             // as client can not spawn objects
             BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // Debug.Log("collision detected with tag: " + collision.transform.tag);
+        if(collision.transform.tag == "ground")
+        {
+            grounded = true;
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if(collision.transform.tag == "ground")
+        {
+            grounded = false;   
         }
     }
 
