@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 8416080753389136689}
   - component: {fileID: 3669935385159913531}
   - component: {fileID: 1688571070517538538}
+  - component: {fileID: 1382267205501200892}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -169,6 +170,19 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1382267205501200892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5969399746237910748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5d6fd947637514c8d50fa1b2cce94e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::cam
+  sensitivity: 0.125
 --- !u!1 &6255315099365940559
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,6 +343,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   speed: 25
+  force: 70
+  maxSpeed: 10
+  sensitivity: 0.125
   colors:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0, g: 1, b: 0, a: 1}
@@ -438,6 +455,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3614771384181825325}
+  - component: {fileID: 2749106122167551961}
   m_Layer: 0
   m_Name: Cannon
   m_TagString: Untagged
@@ -460,3 +478,15 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1057748212832322775}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2749106122167551961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7456924483658578178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3508778cec434d841a8ea502a22813c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CannonAim
