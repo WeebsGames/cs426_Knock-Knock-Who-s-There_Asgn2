@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3401614016741859602}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.78, y: 0.59, z: -3.86}
+  m_LocalPosition: {x: 1.78, y: 0.59, z: -3.8599997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -64,7 +64,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3614771384181825325}
   m_Father: {fileID: 1991902644838573630}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &8416080753389136689
@@ -220,7 +221,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3614771384181825325}
   - {fileID: 1991902644838573630}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2898334313
+  GlobalObjectIdHash: 2463481725
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -472,11 +472,11 @@ Transform:
   m_GameObject: {fileID: 7456924483658578178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.021, y: 0.24749, z: 0.499}
+  m_LocalPosition: {x: -1.801, y: -0.34250998, z: 4.3589997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1057748212832322775}
+  m_Father: {fileID: 5167315623591131901}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2749106122167551961
 MonoBehaviour:
@@ -490,3 +490,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3508778cec434d841a8ea502a22813c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonAim
+  playerCamera: {fileID: 8416080753389136689}

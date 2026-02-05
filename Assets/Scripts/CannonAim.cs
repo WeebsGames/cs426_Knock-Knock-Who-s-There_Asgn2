@@ -1,3 +1,4 @@
+using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;

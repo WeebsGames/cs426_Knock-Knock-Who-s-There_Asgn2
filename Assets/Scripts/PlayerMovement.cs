@@ -117,8 +117,13 @@ public class PlayerMovement : NetworkBehaviour
         {
             // call the BulletSpawningServerRpc method
             // as client can not spawn objects
-            BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+            cannon.SendMessage("RotateCannon");
         }
+    }
+
+    void ShootBullet(RaycastHit hit)
+    {
+        BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
     }
 
     void OnCollisionEnter(Collision collision)
