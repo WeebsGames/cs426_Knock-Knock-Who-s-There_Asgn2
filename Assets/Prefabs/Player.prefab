@@ -343,7 +343,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   speed: 25
-  force: 70
+  force: 250
   maxSpeed: 10
   sensitivity: 0.125
   colors:
@@ -490,3 +490,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3508778cec434d841a8ea502a22813c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonAim
+  playerCam: {fileID: 8416080753389136689}
