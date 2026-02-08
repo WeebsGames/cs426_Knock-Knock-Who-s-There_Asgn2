@@ -8,6 +8,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using Unity.Networking.Transport.Relay;
 using Unity.Netcode.Transports.UTP;
+using UnityEngine.SceneManagement;
 
 public class NetworkManagerUI : MonoBehaviour
 {
@@ -84,6 +85,7 @@ public class NetworkManagerUI : MonoBehaviour
 
         // display the join code
         joinCodeText.text = joinCode;
+        SceneManager.LoadScene("Game");
     }
 
     // start client relay
@@ -110,6 +112,7 @@ public class NetworkManagerUI : MonoBehaviour
 
         // start client
         NetworkManager.Singleton.StartClient();
+        SceneManager.LoadScene("Game");
     }
 
 }
