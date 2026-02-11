@@ -16,7 +16,7 @@ public class PlayerMovement : NetworkBehaviour
     // create a list of colors
     public List<Color> colors = new List<Color>();
     Vector3 dir = new Vector3(0,0,0);
-    bool grounded = false;
+    bool grounded = true;
 
     // getting the reference to the prefab
     [SerializeField]
@@ -80,8 +80,10 @@ public class PlayerMovement : NetworkBehaviour
         //reset directional input vector
         dir = Vector3.zero;
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && grounded)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && grounded){
             rb.AddForce(t.up * force);
+            grounded = false;
+        }
 
         //horizontal movement with mouse
         Vector3 mouseDelta = UnityEngine.InputSystem.Mouse.current.delta.ReadValue();
@@ -135,13 +137,13 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
-    void OnCollisionExit(Collision collision)
-    {
-        if(collision.transform.tag == "ground")
-        {
-            grounded = false;   
-        }
-    }
+    // void OnCollisionExit(Collision collision)
+    // {
+    //     if(collision.transform.tag == "ground")
+    //     {
+    //         grounded = false;   
+    //     }
+    // }
 
     // this method is called when the object is spawned
     // we will change the color of the objects

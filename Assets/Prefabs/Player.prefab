@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1991902644838573630}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CameraPlacement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 3669935385159913531}
   - component: {fileID: 1688571070517538538}
   - component: {fileID: 1382267205501200892}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,7 +201,7 @@ GameObject:
   - component: {fileID: 7503541629157071955}
   - component: {fileID: 783803395520839358}
   - component: {fileID: 5701208795350746358}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2463481725
+  GlobalObjectIdHash: 2898334313
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -343,7 +343,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   speed: 25
-  force: 70
+  force: 250
   maxSpeed: 10
   sensitivity: 0.125
   colors:
@@ -456,7 +456,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3614771384181825325}
   - component: {fileID: 2749106122167551961}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -490,4 +490,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3508778cec434d841a8ea502a22813c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonAim
-  playerCamera: {fileID: 8416080753389136689}
