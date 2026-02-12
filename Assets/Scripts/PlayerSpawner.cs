@@ -11,12 +11,12 @@ using Unity.Netcode;
 // - Make sure the NetworkManager does NOT also auto-create player objects (clear its Player Prefab or disable auto-creation) to avoid duplicates.
 public class PlayerSpawner : MonoBehaviour
 {
-    public Transform[] spawnPoints;
+    public Transform[] spawnPoints; //array of spawnpoint locations
     public GameObject playerPrefab; // networked prefab assigned in inspector
 
     private void Start()
     {
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager.Singleton != null) //adds a client to the server
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }
@@ -24,7 +24,7 @@ public class PlayerSpawner : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager.Singleton != null) //removes a client from the server
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         }
@@ -32,7 +32,7 @@ public class PlayerSpawner : MonoBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (!NetworkManager.Singleton.IsServer) return; //prevents the server from executing this code
         if (playerPrefab == null)
         {
             Debug.LogError("PlayerSpawner: playerPrefab is not assigned.");
@@ -42,14 +42,17 @@ public class PlayerSpawner : MonoBehaviour
         Vector3 pos = Vector3.zero;
         Quaternion rot = Quaternion.identity;
 
-        if (spawnPoints != null && spawnPoints.Length > 0)
+
+        //chooses a spawnpoint based on the player's id and spawnpoint array length
+        if (spawnPoints != null && spawnPoints.Length > 0) //checks if anything is in the spawnpoint arr
         {
-            int index = (int)(clientId % (ulong)spawnPoints.Length);
-            Transform chosen = spawnPoints[index];
+            int index = (int)(clientId % (ulong)spawnPoints.Length); //assigns an index based off the client's id
+            Transform chosen = spawnPoints[index]; 
             pos = chosen.position;
             rot = chosen.rotation;
         }
 
+        //creates a new player object at the spawnpoint's location
         GameObject playerInstance = Instantiate(playerPrefab, pos, rot);
         NetworkObject netObj = playerInstance.GetComponent<NetworkObject>();
         if (netObj == null)
@@ -58,7 +61,7 @@ public class PlayerSpawner : MonoBehaviour
             Destroy(playerInstance);
             return;
         }
-
+        //spawns the player on the server
         netObj.SpawnAsPlayerObject(clientId);
     }
 }
