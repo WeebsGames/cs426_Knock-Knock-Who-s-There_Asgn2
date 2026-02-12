@@ -201,6 +201,7 @@ GameObject:
   - component: {fileID: 7503541629157071955}
   - component: {fileID: 783803395520839358}
   - component: {fileID: 5701208795350746358}
+  - component: {fileID: -5950357026302512006}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -446,6 +447,19 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-5950357026302512006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6255315099365940559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 663f8f5bc0f4b446d91842660b7ca491, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNetworkState
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &7456924483658578178
 GameObject:
   m_ObjectHideFlags: 0
