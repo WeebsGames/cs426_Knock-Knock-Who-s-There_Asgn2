@@ -8,6 +8,7 @@ public class DoorTrigger : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("collided with door" + roomIndex + ":" + answerIndex);
         PlayerNetworkState player = other.GetComponentInParent<PlayerNetworkState>();
         if (player == null) return;
 
