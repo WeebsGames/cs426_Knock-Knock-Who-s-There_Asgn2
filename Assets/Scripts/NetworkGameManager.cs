@@ -37,8 +37,6 @@ public class NetworkGameManager : NetworkBehaviour
     private readonly List<ulong> joinOrder = new();
 
     private readonly HashSet<int> thiefTrapRooms = new();
-    private readonly int[] trapDoorIndexByRoom = { -1, -1, -1, -1, -1, -1 };
-
     private bool thiefReady;
     private bool defenderReady;
 
@@ -87,7 +85,7 @@ public class NetworkGameManager : NetworkBehaviour
         }
 
         Debug.Log($"[NGM] Client connected. clientId={clientId}, joinIndex={joinOrder.IndexOf(clientId)}");
-        AssignRoleIfPossible(clientId);
+        RebuildRoles();
     }
 
     private void OnClientDisconnected(ulong clientId)
@@ -96,6 +94,7 @@ public class NetworkGameManager : NetworkBehaviour
         playerRoles.Remove(clientId);
         playerStates.Remove(clientId);
         joinOrder.Remove(clientId);
+        RebuildRoles();
     }
 
     private void AssignRoleIfPossible(ulong clientId)
@@ -117,6 +116,28 @@ public class NetworkGameManager : NetworkBehaviour
         }
     }
 
+    private void RebuildRoles()
+    {
+        playerRoles.Clear();
+
+        for (int i = 0; i < joinOrder.Count; i++)
+        {
+            ulong clientId = joinOrder[i];
+            PlayerRole role = PlayerRole.Spectator;
+
+            if (i == 0) role = PlayerRole.Thief;
+            else if (i == 1) role = PlayerRole.Defender;
+
+            playerRoles[clientId] = role;
+            Debug.Log($"[NGM] Role assigned. clientId={clientId}, role={role}");
+
+            if (playerStates.TryGetValue(clientId, out var state))
+            {
+                state.SetRole(role);
+            }
+        }
+    }
+
     public void RegisterPlayer(PlayerNetworkState state)
     {
         if (!IsServer || state == null) return;
@@ -124,7 +145,12 @@ public class NetworkGameManager : NetworkBehaviour
         ulong clientId = state.OwnerClientId;
         playerStates[clientId] = state;
 
-        AssignRoleIfPossible(clientId);
+        if (!joinOrder.Contains(clientId))
+        {
+            joinOrder.Add(clientId);
+        }
+
+        RebuildRoles();
 
         if (playerRoles.TryGetValue(clientId, out var role))
         {
@@ -135,6 +161,7 @@ public class NetworkGameManager : NetworkBehaviour
 
         state.SetCurrentRoom(0);
         state.SetScore(0);
+        state.ClearLastDoorChoice();
 
         if (checkpointManager != null)
         {
@@ -266,30 +293,17 @@ public class NetworkGameManager : NetworkBehaviour
             return;
         }
 
-        List<QuestionData> questions = QuestionBank.GetQuestionSet(selectedQuestionSet.Value);
-
-        for (int i = 0; i < trapDoorIndexByRoom.Length; i++)
-        {
-            trapDoorIndexByRoom[i] = -1;
-        }
-
-        // Each selected trap room gets one random wrong answer as trap door.
-        foreach (int roomIndex in thiefTrapRooms)
-        {
-            int correct = questions[roomIndex].correctIndex;
-
-            List<int> wrongIndexes = new() { 0, 1, 2, 3 };
-            wrongIndexes.Remove(correct);
-
-            trapDoorIndexByRoom[roomIndex] = wrongIndexes[Random.Range(0, wrongIndexes.Count)];
-            Debug.Log($"[NGM] Trap generated. room={roomIndex}, trapDoorIndex={trapDoorIndexByRoom[roomIndex]}, correctDoor={correct}");
-        }
+        // Trap behavior:
+        // For selected trap rooms, every wrong door is trap.
+        // Correct door is always safe.
+        Debug.Log($"[NGM] Trap behavior active: selected trap rooms punish all wrong doors.");
 
         foreach (var kvp in playerStates)
         {
             PlayerNetworkState player = kvp.Value;
             player.SetScore(0);
             player.SetCurrentRoom(0);
+            player.ClearLastDoorChoice();
 
             if (checkpointManager != null)
             {
@@ -320,8 +334,9 @@ public class NetworkGameManager : NetworkBehaviour
         QuestionData q = questions[roomIndex];
 
         bool isTrapRoom = thiefTrapRooms.Contains(roomIndex);
-        bool isTrapDoor = isTrapRoom && trapDoorIndexByRoom[roomIndex] == answerIndex;
-        Debug.Log($"[NGM] Door choice. clientId={clientId}, room={roomIndex}, answer={answerIndex}, correct={q.correctIndex}, trapRoom={isTrapRoom}, trapDoor={trapDoorIndexByRoom[roomIndex]}");
+        bool isCorrect = answerIndex == q.correctIndex;
+        bool isTrapDoor = isTrapRoom && !isCorrect;
+        Debug.Log($"[NGM] Door choice. clientId={clientId}, room={roomIndex}, answer={answerIndex}, correct={q.correctIndex}, trapRoom={isTrapRoom}, isTrapHit={isTrapDoor}");
 
         if (isTrapDoor)
         {
@@ -333,8 +348,6 @@ public class NetworkGameManager : NetworkBehaviour
             Debug.Log($"[NGM] Trap hit. clientId={clientId}, score={player.Score}, roomProgress={player.CurrentRoomIndex}, action=teleport_to_start");
             return;
         }
-
-        bool isCorrect = answerIndex == q.correctIndex;
 
         if (isCorrect)
         {

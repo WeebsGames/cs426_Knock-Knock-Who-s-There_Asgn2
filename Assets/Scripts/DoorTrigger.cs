@@ -37,6 +37,7 @@ public class DoorTrigger : NetworkBehaviour
 
         if (NetworkGameManager.Instance != null)
         {
+            player.SetLastDoorChoice(submittedRoomIndex, submittedAnswerIndex);
             NetworkGameManager.Instance.HandleDoorChoice(
                 player.OwnerClientId,
                 submittedRoomIndex,
