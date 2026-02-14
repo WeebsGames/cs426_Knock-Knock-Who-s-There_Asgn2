@@ -52,6 +52,30 @@ public static class QuestionBank
                 questionText = "Which bus carries memory addresses?",
                 answers = new[] {"Data Bus", "Control Bus", "Address Bus", "I/O Bus"},
                 correctIndex = 2
+            },
+            new QuestionData
+            {
+                questionText = "Which unit controls instruction flow in CPU?",
+                answers = new[] {"ALU", "Control Unit", "Cache", "SSD"},
+                correctIndex = 1
+            },
+            new QuestionData
+            {
+                questionText = "Which memory is closest to CPU registers?",
+                answers = new[] {"L1 Cache", "RAM", "HDD", "ROM"},
+                correctIndex = 0
+            },
+            new QuestionData
+            {
+                questionText = "Which of these is permanent storage?",
+                answers = new[] {"RAM", "Cache", "SSD", "Register"},
+                correctIndex = 2
+            },
+            new QuestionData
+            {
+                questionText = "Binary system uses which two digits?",
+                answers = new[] {"0 and 1", "1 and 2", "2 and 3", "0 and 9"},
+                correctIndex = 0
             }
         };
     }
@@ -95,6 +119,30 @@ public static class QuestionBank
                 questionText = "Which unit is most directly responsible for logic comparisons?",
                 answers = new[] {"ALU", "PSU", "SSD Controller", "Northbridge"},
                 correctIndex = 0
+            },
+            new QuestionData
+            {
+                questionText = "Which component executes program instructions?",
+                answers = new[] {"Monitor", "CPU", "Keyboard", "Router"},
+                correctIndex = 1
+            },
+            new QuestionData
+            {
+                questionText = "Which memory loses data when power is OFF?",
+                answers = new[] {"ROM", "Flash", "RAM", "Blu-ray"},
+                correctIndex = 2
+            },
+            new QuestionData
+            {
+                questionText = "A cache hit means:",
+                answers = new[] {"Data found in cache", "Cache is full", "CPU has failed", "RAM is empty"},
+                correctIndex = 0
+            },
+            new QuestionData
+            {
+                questionText = "The data bus mainly carries:",
+                answers = new[] {"Control signals", "Memory addresses", "Actual data values", "Power"},
+                correctIndex = 2
             }
         };
     }
@@ -137,6 +185,30 @@ public static class QuestionBank
             {
                 questionText = "Which bus transfers actual values between CPU and memory?",
                 answers = new[] {"Address Bus", "Data Bus", "Control Bus", "Clock Bus"},
+                correctIndex = 1
+            },
+            new QuestionData
+            {
+                questionText = "Which is a CPU internal fast storage location?",
+                answers = new[] {"Register", "SSD", "USB", "GPU Fan"},
+                correctIndex = 0
+            },
+            new QuestionData
+            {
+                questionText = "What does ROM usually store?",
+                answers = new[] {"Temporary game data", "Firmware/startup code", "Mouse input", "Live network traffic"},
+                correctIndex = 1
+            },
+            new QuestionData
+            {
+                questionText = "Which component is NOT part of basic CPU architecture?",
+                answers = new[] {"ALU", "Control Unit", "Registers", "Power Supply"},
+                correctIndex = 3
+            },
+            new QuestionData
+            {
+                questionText = "Which operation is most likely done by ALU?",
+                answers = new[] {"Saving file to disk", "3 + 5", "Loading OS from SSD", "Rendering monitor image"},
                 correctIndex = 1
             }
         };

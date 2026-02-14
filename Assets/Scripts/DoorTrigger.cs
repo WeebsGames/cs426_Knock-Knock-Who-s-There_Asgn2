@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DoorTrigger : NetworkBehaviour
 {
-    public int roomIndex;   // 0..5
+    public int roomIndex;   // 0..9
     public int answerIndex; // 0..3
 
     private void OnTriggerEnter(Collider other)

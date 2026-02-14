@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class GameHUDController : MonoBehaviour
 {
+    private const int TotalRooms = 10;
+
     [Header("Text References")]
     [SerializeField] private TMP_Text headerText;
     [SerializeField] private TMP_Text myStateText;
@@ -60,8 +62,10 @@ public class GameHUDController : MonoBehaviour
         }
 
         string role = localPlayer.Role.ToString();
-        int roomShown = Mathf.Clamp(localPlayer.CurrentRoomIndex + 1, 1, 7);
-        SetText(myStateText, $"Role: {role}\nScore: {localPlayer.Score}\nProgress Room: {roomShown}/7");
+        string progressText = localPlayer.CurrentRoomIndex >= TotalRooms
+            ? $"Completed {TotalRooms}/{TotalRooms} (Go to Vault)"
+            : $"Next Room: {localPlayer.CurrentRoomIndex + 1}/{TotalRooms}";
+        SetText(myStateText, $"Role: {role}\nScore: {localPlayer.Score}\n{progressText}");
     }
 
     private void UpdateQuestionAndAnswers()
@@ -80,7 +84,7 @@ public class GameHUDController : MonoBehaviour
             return;
         }
 
-        if (localPlayer.CurrentRoomIndex >= 6)
+        if (localPlayer.CurrentRoomIndex >= TotalRooms)
         {
             SetText(questionText, "Question: All rooms completed. Go to Vault.");
             SetText(answersText, string.Empty);
@@ -88,7 +92,7 @@ public class GameHUDController : MonoBehaviour
         }
 
         List<QuestionData> set = QuestionBank.GetQuestionSet(gameManager.SelectedQuestionSetIndex);
-        int roomIndex = Mathf.Clamp(localPlayer.CurrentRoomIndex, 0, 5);
+        int roomIndex = Mathf.Clamp(localPlayer.CurrentRoomIndex, 0, TotalRooms - 1);
         QuestionData q = set[roomIndex];
 
         SetText(questionText, $"Room {roomIndex + 1} Question:\n{q.questionText}");
@@ -120,7 +124,7 @@ public class GameHUDController : MonoBehaviour
         SetText(
             setupHelpText,
             "Setup Keys\n" +
-            "Thief: 1..6 select trap rooms, R ready\n" +
+            "Thief: 1..9 and 0 select trap rooms, R ready\n" +
             "Defender: Z/X/C select set A/B/C, R ready"
         );
     }

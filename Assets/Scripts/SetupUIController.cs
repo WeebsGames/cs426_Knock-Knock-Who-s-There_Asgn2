@@ -22,13 +22,17 @@ public class SetupUIController : MonoBehaviour
         if (gameManager.CurrentPhase != GamePhase.Setup) return;
         if (Keyboard.current == null) return;
 
-        // Trap room hotkeys (toggle): 1..6 => rooms 0..5
+        // Trap room hotkeys (toggle): 1..9/0 => rooms 0..9
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectTrapRoom(0);
         if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectTrapRoom(1);
         if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectTrapRoom(2);
         if (Keyboard.current.digit4Key.wasPressedThisFrame) SelectTrapRoom(3);
         if (Keyboard.current.digit5Key.wasPressedThisFrame) SelectTrapRoom(4);
         if (Keyboard.current.digit6Key.wasPressedThisFrame) SelectTrapRoom(5);
+        if (Keyboard.current.digit7Key.wasPressedThisFrame) SelectTrapRoom(6);
+        if (Keyboard.current.digit8Key.wasPressedThisFrame) SelectTrapRoom(7);
+        if (Keyboard.current.digit9Key.wasPressedThisFrame) SelectTrapRoom(8);
+        if (Keyboard.current.digit0Key.wasPressedThisFrame) SelectTrapRoom(9);
 
         // Question set hotkeys: Z = A, X = B, C = C
         if (Keyboard.current.zKey.wasPressedThisFrame) SelectQuestionSet(0);

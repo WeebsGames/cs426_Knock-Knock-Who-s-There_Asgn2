@@ -4,7 +4,7 @@ public class CheckpointManager : MonoBehaviour
 {
     [Header("Checkpoint Setup")]
     public Transform startCheckpoint;
-    public Transform[] roomCheckpoints = new Transform[6];
+    public Transform[] roomCheckpoints = new Transform[10];
 
     public void TeleportPlayerToStart(PlayerNetworkState player)
     {

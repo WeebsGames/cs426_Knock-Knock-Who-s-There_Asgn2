@@ -19,6 +19,8 @@ public enum PlayerRole
 
 public class NetworkGameManager : NetworkBehaviour
 {
+    private const int TotalRooms = 10;
+
     public static NetworkGameManager Instance { get; private set; }
 
     [SerializeField] private CheckpointManager checkpointManager;
@@ -199,7 +201,7 @@ public class NetworkGameManager : NetworkBehaviour
     private void SelectTrapRoomServerRpc(int roomIndex, ServerRpcParams rpcParams = default)
     {
         if (phase.Value != GamePhase.Setup) return;
-        if (roomIndex < 0 || roomIndex > 5) return;
+        if (roomIndex < 0 || roomIndex >= TotalRooms) return;
 
         ulong sender = rpcParams.Receive.SenderClientId;
         PlayerRole role = GetRole(sender);
@@ -319,7 +321,7 @@ public class NetworkGameManager : NetworkBehaviour
     public void HandleDoorChoice(ulong clientId, int roomIndex, int answerIndex)
     {
         if (!IsServer || phase.Value != GamePhase.Race) return;
-        if (roomIndex < 0 || roomIndex > 5) return;
+        if (roomIndex < 0 || roomIndex >= TotalRooms) return;
         if (answerIndex < 0 || answerIndex > 3) return;
         if (!playerStates.TryGetValue(clientId, out var player)) return;
 
@@ -354,8 +356,8 @@ public class NetworkGameManager : NetworkBehaviour
             player.AddScore(1);
             player.SetCurrentRoom(roomIndex + 1);
 
-            // Move player to next room checkpoint (except after room 6 answer).
-            if (roomIndex < 5 && checkpointManager != null)
+            // Move player to next room checkpoint (except after final room answer).
+            if (roomIndex < TotalRooms - 1 && checkpointManager != null)
             {
                 checkpointManager.TeleportPlayerToRoom(player, roomIndex + 1);
             }
@@ -373,10 +375,10 @@ public class NetworkGameManager : NetworkBehaviour
         if (!IsServer || phase.Value != GamePhase.Race) return;
         if (!playerStates.TryGetValue(clientId, out var player)) return;
 
-        // Must complete all 6 rooms first.
-        if (player.CurrentRoomIndex < 6)
+        // Must complete all rooms first.
+        if (player.CurrentRoomIndex < TotalRooms)
         {
-            Debug.Log($"[NGM] Finish ignored. clientId={clientId}, currentRoomIndex={player.CurrentRoomIndex} (needs 6).");
+            Debug.Log($"[NGM] Finish ignored. clientId={clientId}, currentRoomIndex={player.CurrentRoomIndex} (needs {TotalRooms}).");
             return;
         }
 
