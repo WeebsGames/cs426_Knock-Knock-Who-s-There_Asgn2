@@ -115,12 +115,12 @@ public class PlayerMovement : NetworkBehaviour
             Destroy(instantiatedPrefab);
         }
 
-        if (Input.GetButtonDown("Fire1"))
-        {
-            // call the BulletSpawningServerRpc method
-            // as client can not spawn objects
-            cannon.SendMessage("RotateCannon");
-        }
+        // if (Input.GetButtonDown("Fire1"))
+        // {
+        //     // call the BulletSpawningServerRpc method
+        //     // as client can not spawn objects
+        //     cannon.SendMessage("RotateCannon");
+        // }
     }
 
     void ShootBullet(RaycastHit hit)
