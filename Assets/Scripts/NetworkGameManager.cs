@@ -34,6 +34,12 @@ public class NetworkGameManager : NetworkBehaviour
     private NetworkVariable<ulong> winnerClientId =
         new(ulong.MaxValue, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    private NetworkVariable<bool> thiefRestartVote =
+        new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    private NetworkVariable<bool> defenderRestartVote =
+        new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     private readonly Dictionary<ulong, PlayerRole> playerRoles = new();
     private readonly Dictionary<ulong, PlayerNetworkState> playerStates = new();
     private readonly List<ulong> joinOrder = new();
@@ -45,6 +51,8 @@ public class NetworkGameManager : NetworkBehaviour
     public GamePhase CurrentPhase => phase.Value;
     public int SelectedQuestionSetIndex => selectedQuestionSet.Value;
     public ulong WinnerClientId => winnerClientId.Value;
+    public bool ThiefRestartVote => thiefRestartVote.Value;
+    public bool DefenderRestartVote => defenderRestartVote.Value;
 
     private void Awake()
     {
@@ -197,6 +205,11 @@ public class NetworkGameManager : NetworkBehaviour
         ConfirmReadyServerRpc();
     }
 
+    public void RequestRestart()
+    {
+        RequestRestartServerRpc();
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void SelectTrapRoomServerRpc(int roomIndex, ServerRpcParams rpcParams = default)
     {
@@ -314,6 +327,8 @@ public class NetworkGameManager : NetworkBehaviour
         }
 
         winnerClientId.Value = ulong.MaxValue;
+        thiefRestartVote.Value = false;
+        defenderRestartVote.Value = false;
         phase.Value = GamePhase.Race;
         Debug.Log($"[NGM] Race started. questionSet={selectedQuestionSet.Value} ({GetQuestionSetName(selectedQuestionSet.Value)}), trapRooms=[{GetTrapRoomsString()}]");
     }
@@ -328,7 +343,10 @@ public class NetworkGameManager : NetworkBehaviour
         if (player.CurrentRoomIndex != roomIndex)
         {
             // Enforce in-order rooms.
-            Debug.Log($"[NGM] Door ignored (wrong room order). clientId={clientId}, expectedRoom={player.CurrentRoomIndex}, submittedRoom={roomIndex}");
+            Debug.Log(
+                $"[NGM] Door ignored (wrong room order). clientId={clientId}, " +
+                $"expectedRoomIndex(0-based)={player.CurrentRoomIndex}, expectedHumanRoom(1-based)={player.CurrentRoomIndex + 1}, " +
+                $"submittedRoomIndex(0-based)={roomIndex}, submittedHumanRoom(1-based)={roomIndex + 1}");
             return;
         }
 
@@ -338,16 +356,26 @@ public class NetworkGameManager : NetworkBehaviour
         bool isTrapRoom = thiefTrapRooms.Contains(roomIndex);
         bool isCorrect = answerIndex == q.correctIndex;
         bool isTrapDoor = isTrapRoom && !isCorrect;
-        Debug.Log($"[NGM] Door choice. clientId={clientId}, room={roomIndex}, answer={answerIndex}, correct={q.correctIndex}, trapRoom={isTrapRoom}, isTrapHit={isTrapDoor}");
+        Debug.Log(
+            $"[NGM] Door choice. clientId={clientId}, roomIndex(0-based)={roomIndex}, humanRoom(1-based)={roomIndex + 1}, " +
+            $"answerIndex={answerIndex}, correctIndex={q.correctIndex}, trapRoom={isTrapRoom}, isTrapHit={isTrapDoor}");
 
         if (isTrapDoor)
         {
             player.AddScore(-5);
+
+            // Trap penalty: move player back by 2 rooms (minimum room 0).
+            int fallbackRoomIndex = Mathf.Max(0, roomIndex - 2);
+            player.SetCurrentRoom(fallbackRoomIndex);
+
             if (checkpointManager != null)
             {
-                checkpointManager.TeleportPlayerToStart(player);
+                checkpointManager.TeleportPlayerToRoom(player, fallbackRoomIndex);
             }
-            Debug.Log($"[NGM] Trap hit. clientId={clientId}, score={player.Score}, roomProgress={player.CurrentRoomIndex}, action=teleport_to_start");
+            Debug.Log(
+                $"[NGM] Trap hit. clientId={clientId}, score={player.Score}, " +
+                $"newRoomProgressIndex(0-based)={player.CurrentRoomIndex}, " +
+                $"teleportToRoomIndex(0-based)={fallbackRoomIndex}");
             return;
         }
 
@@ -361,12 +389,23 @@ public class NetworkGameManager : NetworkBehaviour
             {
                 checkpointManager.TeleportPlayerToRoom(player, roomIndex + 1);
             }
-            Debug.Log($"[NGM] Correct answer. clientId={clientId}, newScore={player.Score}, newRoomProgress={player.CurrentRoomIndex}");
+            Debug.Log(
+                $"[NGM] Correct answer. clientId={clientId}, newScore={player.Score}, " +
+                $"newRoomProgressIndex(0-based)={player.CurrentRoomIndex}, nextHumanRoom(1-based)={player.CurrentRoomIndex + 1}");
         }
         else
         {
             player.AddScore(-2);
-            Debug.Log($"[NGM] Wrong normal door. clientId={clientId}, newScore={player.Score}, roomProgress={player.CurrentRoomIndex}");
+
+            // Wrong normal answer: keep same room and teleport to that room checkpoint.
+            if (checkpointManager != null)
+            {
+                checkpointManager.TeleportPlayerToRoom(player, roomIndex);
+            }
+
+            Debug.Log(
+                $"[NGM] Wrong normal door. clientId={clientId}, newScore={player.Score}, " +
+                $"roomProgressIndex(0-based)={player.CurrentRoomIndex}, teleportToSameRoomIndex(0-based)={roomIndex}");
         }
     }
 
@@ -384,7 +423,77 @@ public class NetworkGameManager : NetworkBehaviour
 
         phase.Value = GamePhase.Finished;
         winnerClientId.Value = clientId;
+        thiefRestartVote.Value = false;
+        defenderRestartVote.Value = false;
         Debug.Log($"[NGM] Race finished. WINNER clientId={clientId}, finalScore={player.Score}");
+
+        // End of match: send everyone back to start checkpoint.
+        foreach (var kvp in playerStates)
+        {
+            if (checkpointManager != null)
+            {
+                checkpointManager.TeleportPlayerToStart(kvp.Value);
+            }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestRestartServerRpc(ServerRpcParams rpcParams = default)
+    {
+        if (phase.Value != GamePhase.Finished) return;
+
+        ulong sender = rpcParams.Receive.SenderClientId;
+        PlayerRole role = GetRole(sender);
+
+        if (role == PlayerRole.Thief)
+        {
+            thiefRestartVote.Value = true;
+        }
+        else if (role == PlayerRole.Defender)
+        {
+            defenderRestartVote.Value = true;
+        }
+        else
+        {
+            return;
+        }
+
+        Debug.Log($"[NGM] Restart vote received. role={role}, thiefVote={thiefRestartVote.Value}, defenderVote={defenderRestartVote.Value}");
+
+        if (thiefRestartVote.Value && defenderRestartVote.Value)
+        {
+            RestartMatchToSetup();
+        }
+    }
+
+    private void RestartMatchToSetup()
+    {
+        if (!IsServer) return;
+
+        thiefTrapRooms.Clear();
+        selectedQuestionSet.Value = -1;
+        winnerClientId.Value = ulong.MaxValue;
+
+        thiefReady = false;
+        defenderReady = false;
+        thiefRestartVote.Value = false;
+        defenderRestartVote.Value = false;
+
+        foreach (var kvp in playerStates)
+        {
+            PlayerNetworkState player = kvp.Value;
+            player.SetScore(0);
+            player.SetCurrentRoom(0);
+            player.ClearLastDoorChoice();
+
+            if (checkpointManager != null)
+            {
+                checkpointManager.TeleportPlayerToStart(player);
+            }
+        }
+
+        phase.Value = GamePhase.Setup;
+        Debug.Log("[NGM] Both players voted restart. Match reset to Setup phase.");
     }
 
     private string GetTrapRoomsString()

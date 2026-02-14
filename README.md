@@ -14,7 +14,6 @@
 - Correct door: `+1` score and advance.
 - Wrong normal door: `-2` score.
 - If room is a trap room and player chooses a wrong door: `-5` score and teleport to start checkpoint.
-- Falling into kill zone teleports player to last checkpoint.
 
 ## 4. Setup Phase
 - Thief selects exactly 3 trap rooms.

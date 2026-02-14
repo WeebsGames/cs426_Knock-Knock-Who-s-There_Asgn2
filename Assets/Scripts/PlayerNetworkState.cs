@@ -52,7 +52,8 @@ public class PlayerNetworkState : NetworkBehaviour
     {
         if (!IsServer) return;
         currentRoomIndex.Value = Mathf.Clamp(roomIndex, 0, 10);
-        Debug.Log($"[PlayerState] Room progress set. clientId={OwnerClientId}, currentRoomIndex={currentRoomIndex.Value}");
+        int nextHumanRoom = currentRoomIndex.Value + 1;
+        Debug.Log($"[PlayerState] Room progress set. clientId={OwnerClientId}, currentRoomIndex(0-based)={currentRoomIndex.Value}, nextHumanRoom(1-based)={nextHumanRoom}");
     }
 
     public void SetScore(int newScore)

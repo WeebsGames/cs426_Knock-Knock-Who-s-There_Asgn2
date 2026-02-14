@@ -50,6 +50,12 @@ public class GameHUDController : MonoBehaviour
     {
         string phase = gameManager.CurrentPhase.ToString();
         string setName = GetSetName(gameManager.SelectedQuestionSetIndex);
+        if (gameManager.CurrentPhase == GamePhase.Finished)
+        {
+            SetText(headerText, BuildFinishedHeadline());
+            return;
+        }
+
         SetText(headerText, $"Phase: {phase} | Question Set: {setName}");
     }
 
@@ -117,7 +123,18 @@ public class GameHUDController : MonoBehaviour
     {
         if (gameManager.CurrentPhase != GamePhase.Setup)
         {
-            SetText(setupHelpText, string.Empty);
+            if (gameManager.CurrentPhase == GamePhase.Finished)
+            {
+                SetText(
+                    setupHelpText,
+                    "Play Again?\n" +
+                    "Press R to vote restart\n" +
+                    $"Restart Votes: Thief={gameManager.ThiefRestartVote}, Defender={gameManager.DefenderRestartVote}");
+            }
+            else
+            {
+                SetText(setupHelpText, string.Empty);
+            }
             return;
         }
 
@@ -165,6 +182,42 @@ public class GameHUDController : MonoBehaviour
             2 => "C",
             _ => "Not Selected"
         };
+    }
+
+    private string BuildFinishedHeadline()
+    {
+        if (gameManager.WinnerClientId == ulong.MaxValue)
+        {
+            return "Phase: Finished | Match Over";
+        }
+
+        PlayerNetworkState[] all = FindObjectsByType<PlayerNetworkState>(FindObjectsSortMode.None);
+        PlayerNetworkState winner = null;
+        foreach (PlayerNetworkState p in all)
+        {
+            if (p != null && p.OwnerClientId == gameManager.WinnerClientId)
+            {
+                winner = p;
+                break;
+            }
+        }
+
+        if (winner == null)
+        {
+            return $"Phase: Finished | Winner ClientId: {gameManager.WinnerClientId}";
+        }
+
+        if (winner.Role == PlayerRole.Thief)
+        {
+            return "Phase: Finished | Thief Won - Data Heist Successful. The CPU core secrets are gone.";
+        }
+
+        if (winner.Role == PlayerRole.Defender)
+        {
+            return "Phase: Finished | Defender Won - System Secured. The vault and architecture docs are safe.";
+        }
+
+        return $"Phase: Finished | Winner: {winner.Role}";
     }
 
     private static void SetText(TMP_Text target, string value)

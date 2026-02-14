@@ -19,8 +19,20 @@ public class SetupUIController : MonoBehaviour
     private void Update()
     {
         if (gameManager == null) return;
-        if (gameManager.CurrentPhase != GamePhase.Setup) return;
         if (Keyboard.current == null) return;
+
+        if (gameManager.CurrentPhase == GamePhase.Finished)
+        {
+            // Restart vote in finished phase.
+            if (Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                Debug.Log("[SetupUI] Key input -> RequestRestart()");
+                gameManager.RequestRestart();
+            }
+            return;
+        }
+
+        if (gameManager.CurrentPhase != GamePhase.Setup) return;
 
         // Trap room hotkeys (toggle): 1..9/0 => rooms 0..9
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectTrapRoom(0);
