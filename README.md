@@ -1,5 +1,6 @@
 # Knock Knock: Who's There? (Assignment 2)
 
+Members: Nurali, Omar, Areeb
 ## 1. Players
 - 2 human players (1v1):
   - **Thief (Attacker)**
