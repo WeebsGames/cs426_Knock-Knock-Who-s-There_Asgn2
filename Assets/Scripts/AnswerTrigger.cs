@@ -25,14 +25,20 @@ public class AnswerTrigger : MonoBehaviour
             color.g = 255;
             rend.material.color = color;
             Debug.Log("sent message upwards");
-            scoreManager.AddPoint(1);
+            if(other.tag == "Player")
+            {
+                scoreManager.AddPoint(1);
+            }
         } else
         {
             color.a = 0.5f;
             color.r = 255;
             rend.material.color = color;
             other.transform.position = checkpoint.position;
-            scoreManager.AddPoint(-1);
+            if(other.tag == "Player")
+            {
+                scoreManager.AddPoint(-1);
+            }
         }
         Invoke("resetColor", 2f);
     }
